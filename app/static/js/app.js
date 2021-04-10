@@ -22,11 +22,25 @@ app.component('app-header', {
           <li class="nav-item active">
             <router-link class="nav-link" to="/">Home <span class="sr-only">(current)</span></router-link>
           </li>
+          <li class="nav-item active">
+            <router-link class="nav-link" to="/upload">Upload Form <span class="sr-only">(current)</span></router-link>
+        </li>
         </ul>
       </div>
     </nav>
     `
 });
+const NotFound = {
+    name: 'NotFound',
+    template: `
+    <div>
+        <h1>404 - Not Found</h1>
+    </div>
+    `,
+    data() {
+        return {}
+    }
+};
 
 app.component('app-footer', {
     name: 'AppFooter',
@@ -56,27 +70,72 @@ const Home = {
         return {}
     }
 };
-
-const NotFound = {
-    name: 'NotFound',
-    template: `
-    <div>
-        <h1>404 - Not Found</h1>
-    </div>
+const upload_form = {
+    name: 'UploadForm',
+    template:`
+        <h1>Upload Form</h1>
+        <div>
+            <form @submit.prevent="uploadPhoto" id="uploadForm">
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea name="description" class="form-control"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="photo">Photo</label>
+                    <input name="photo" class="form-control-file" type="file">
+                </div><br>
+                <button type=submit class="btn btn-primary">Submit</button>
+            </form>
+        </div>
     `,
+    methods: {
+        uploadPhoto: function(){
+            self = this;
+            let uploadForm = document.getElementById('uploadForm');
+            let form_data = new FormData(uploadForm);
+            
+            fetch("/api/upload", {
+                method: "POST",
+                body: form_data,
+                headers: {
+                    'X-CSRFToken': token
+                },
+                credentials: 'same-origin'
+            })
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (jsonResponse) {
+                // display a success message
+                console.log(jsonResponse.errors);
+                if (jsonResponse.errors == undefined){
+                    console.log(jsonResponse)
+
+                } else if (jsonResponse.errors != undefined){
+                    console.log(jsonResponse)
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+        }
+    },
     data() {
-        return {}
+        return {
+
+        }
     }
 };
 
-// Define Routes
+//Define Routes
 const routes = [
     { path: "/", component: Home },
     // Put other routes here
-
+    { path:"/upload",component:upload_form},
     // This is a catch all route in case none of the above matches
     { path: '/:pathMatch(.*)*', name: 'not-found', component: NotFound }
 ];
+
 
 const router = VueRouter.createRouter({
     history: VueRouter.createWebHistory(),
