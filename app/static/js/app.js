@@ -72,8 +72,8 @@ const Home = {
     }
 };
 
-const UploadForm = {
-    name: 'upload-form',
+app.component("upload-form", {
+    name: 'UploadForm',
     template:`
         <h1>Upload Form</h1>
         <div>
@@ -139,8 +139,8 @@ const UploadForm = {
             success:[]
         }
     }
-};
-
+});
+const UploadForm = app.component("upload-form");
 //Define Routes
 const routes = [
     { path: "/", component: Home },
