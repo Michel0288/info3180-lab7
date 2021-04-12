@@ -1,5 +1,6 @@
 /* Add your Application JavaScript */
 // Instantiate our main Vue Instance
+
 const app = Vue.createApp({
     data() {
         return {
@@ -70,12 +71,19 @@ const Home = {
         return {}
     }
 };
-const upload_form = {
-    name: 'UploadForm',
+
+const UploadForm = {
+    name: 'upload-form',
     template:`
         <h1>Upload Form</h1>
         <div>
             <form @submit.prevent="uploadPhoto" id="uploadForm">
+                <div id = "message">
+                    <p class="alert alert-success" v-if="message === 'success'" >{{success}}</p>
+                    <ul class="alert alert-danger" v-if="message === 'error'" >
+                        <li v-for="errors in errors" > {{errors}}</li>
+                    </ul> 
+                </div>
                 <div class="form-group">
                     <label for="description">Description</label>
                     <textarea name="description" class="form-control"></textarea>
@@ -107,12 +115,16 @@ const upload_form = {
             })
             .then(function (jsonResponse) {
                 // display a success message
-                console.log(jsonResponse.errors);
-                if (jsonResponse.errors == undefined){
+                // self.outcome = 'success';
+                // self.success = jsonResponse.data.message;
+                if ('data' in jsonResponse ){
+                    self.success = jsonResponse.data.message;
+                    self.message = 'success';
                     console.log(jsonResponse)
-
-                } else if (jsonResponse.errors != undefined){
+                } else if ('errormessage' in jsonResponse ){
                     console.log(jsonResponse)
+                    self.errors = jsonResponse.errormessage.errors;
+                    self.message = 'error';
                 }
             })
             .catch(function (error) {
@@ -122,7 +134,9 @@ const upload_form = {
     },
     data() {
         return {
-
+            message: '',
+            errors: [],
+            success:[]
         }
     }
 };
@@ -131,7 +145,7 @@ const upload_form = {
 const routes = [
     { path: "/", component: Home },
     // Put other routes here
-    { path:"/upload",component:upload_form},
+    { path:"/upload",component:UploadForm},
     // This is a catch all route in case none of the above matches
     { path: '/:pathMatch(.*)*', name: 'not-found', component: NotFound }
 ];
@@ -141,6 +155,7 @@ const router = VueRouter.createRouter({
     history: VueRouter.createWebHistory(),
     routes, // short for `routes: routes`
 });
+
 
 app.use(router);
 
